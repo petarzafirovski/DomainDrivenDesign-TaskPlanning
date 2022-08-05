@@ -6,7 +6,6 @@ import lombok.NonNull;
 import mk.ukim.finki.sharedkernel.domain.base.AbstractEntity;
 import mk.ukim.finki.sharedkernel.domain.base.DomainObjectId;
 import mk.ukim.finki.tasks.domain.valueobjects.UserId;
-import mk.ukim.finki.users.domain.model.TaskItem;
 
 
 import javax.persistence.*;

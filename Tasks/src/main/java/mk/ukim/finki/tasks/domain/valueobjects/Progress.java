@@ -12,4 +12,5 @@ public class Progress {
     protected Progress(){
         this.progress = 0.0;
     }
+
 }
