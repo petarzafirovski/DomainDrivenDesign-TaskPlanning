@@ -1,15 +1,13 @@
 package mk.ukim.finki.users.domain.model;
 
+import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NonNull;
 import mk.ukim.finki.sharedkernel.domain.base.AbstractEntity;
 import mk.ukim.finki.sharedkernel.domain.base.DomainObjectId;
 import mk.ukim.finki.users.domain.valueobjects.TaskId;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "task_item")
@@ -19,12 +17,16 @@ public class TaskItem extends AbstractEntity<TaskItemId> {
     @AttributeOverride(name = "id", column = @Column(name = "task_id", nullable = false))
     private TaskId taskId;
 
-    public TaskItem(@NonNull TaskId taskId){
+    @ManyToOne
+    private User user;
+
+    public TaskItem(@NonNull TaskId taskId, @NotNull User user) {
         super(DomainObjectId.randomId(TaskItemId.class));
-        this.taskId =taskId;
+        this.taskId = taskId;
+        this.user = user;
     }
 
-    protected TaskItem(){
+    protected TaskItem() {
         super(DomainObjectId.randomId(TaskItemId.class));
     }
 }

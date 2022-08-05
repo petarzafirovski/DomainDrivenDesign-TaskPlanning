@@ -32,23 +32,23 @@ public class AbstractEntity<ID extends DomainObjectId> {
         this.id = Objects.requireNonNull(id, "id must not be null");
     }
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (obj == this) {
-//            return true;
-//        }
-//        if (obj == null || !getClass().equals(ProxyUtils.getUserClass(obj))) {
-//            return false;
-//        }
-//
-//        var other = (AbstractEntity<?>) obj;
-//        return id != null && id.equals(other.id);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return id == null ? super.hashCode() : id.hashCode();
-//    }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || !getClass().equals(ProxyUtils.getUserClass(obj))) {
+            return false;
+        }
+
+        var other = (AbstractEntity<?>) obj;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? super.hashCode() : id.hashCode();
+    }
 
     @Override
     public String toString() {
