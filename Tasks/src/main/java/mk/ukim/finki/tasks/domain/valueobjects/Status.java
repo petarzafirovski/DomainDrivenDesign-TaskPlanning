@@ -4,6 +4,5 @@ public enum Status {
     todo,
     inProgress,
     forReview,
-    finished,
-    cancelled
+    finished
 }
