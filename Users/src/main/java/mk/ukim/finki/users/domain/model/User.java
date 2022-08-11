@@ -47,7 +47,7 @@ public class User extends AbstractEntity<UserId> {
         return taskItem;
     }
 
-    public TaskItem removeTaskFromUser(@NonNull Task task) {
+    public void removeTaskFromUser(@NonNull Task task) {
         Objects.requireNonNull(task, "task must not be null");
 
         TaskItem removed = taskItemSet.stream()
@@ -55,7 +55,5 @@ public class User extends AbstractEntity<UserId> {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("task does not exist"));
         this.taskItemSet.remove(removed);
-
-        return removed;
     }
 }

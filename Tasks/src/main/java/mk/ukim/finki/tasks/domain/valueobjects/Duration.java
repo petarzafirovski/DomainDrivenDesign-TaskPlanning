@@ -3,6 +3,7 @@ package mk.ukim.finki.tasks.domain.valueobjects;
 import lombok.Getter;
 
 import javax.persistence.Embeddable;
+import java.time.temporal.Temporal;
 
 @Embeddable
 @Getter
@@ -23,5 +24,9 @@ public class Duration {
         }else{
             throw new IllegalArgumentException("Duration cannot be less than 0");
         }
+    }
+
+    public static java.time.Duration between(Temporal startInclusive, Temporal endExclusive) {
+        return java.time.Duration.between(startInclusive,endExclusive);
     }
 }
