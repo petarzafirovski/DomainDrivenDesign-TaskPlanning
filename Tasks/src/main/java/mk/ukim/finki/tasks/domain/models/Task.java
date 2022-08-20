@@ -36,12 +36,10 @@ public class Task extends AbstractEntity<TaskId> {
     private TaskUser user;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Nullable
     @AttributeOverride(name = "time", column = @Column(name = "start_time", nullable = false))
     private Time startTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Nullable
     @AttributeOverride(name = "time", column = @Column(name = "end_time", nullable = false))
     private Time endTime;
 
@@ -72,17 +70,17 @@ public class Task extends AbstractEntity<TaskId> {
 
     //TODO: Implement data validation, adding a task, progress calculation, status calculation
 
-    public void setStatus(@NonNull Progress progress) {
-        if (progress.getProgress() == (0.0)) {
+    public void setStatus(Progress progress) {
+        if (progress == null || progress.getProgress() == (0.0)) {
             this.status = Status.todo;
         }
-        if (progress.getProgress() > 0.0) {
+        else if (progress.getProgress() > 0.0) {
             this.status = Status.inProgress;
         }
-        if (progress.getProgress() >= 0.8) {
+        else if (progress.getProgress() >= 0.8) {
             this.status = Status.forReview;
         }
-        if (progress.getProgress() == 1) {
+        else if (progress.getProgress() == 1) {
             this.status = Status.finished;
         }
     }
@@ -129,13 +127,35 @@ public class Task extends AbstractEntity<TaskId> {
     }
 
     //est time in hours
-    public Long findEstTimeInHours() {
-        if (this.endTime == null){
+    public Long findEstTimeInHours(Time startTime, Time endTime) {
+        if (endTime == null){
             throw new IllegalArgumentException("duration cannot be calculated");
         }
-        if (this.startTime != null)
+        if (startTime != null)
             return Duration.between(this.startTime.getTime(), this.endTime.getTime()).toDays();
         return Duration.between(LocalDateTime.now(), this.endTime.getTime()).toDays();
     }
 
+    public static Task build(String title, String description, List<Task> dependsOn, TaskUser user, Time startTime,Time endTime, @Nullable Progress progress) {
+        Task task = new Task();
+        task.setTitle(title);
+        task.setStatus(progress);
+        task.setDescription(description);
+        task.setDependsOn(dependsOn);
+        task.setStartTime(startTime );
+        task.setEndTime(endTime);
+        if(startTime!=null && endTime == null){
+            Duration duration = new Duration(1L);
+            task.setDuration(duration);
+        }
+
+        if(startTime!=null && endTime!=null){
+            Long dur = task.findEstTimeInHours(startTime,endTime);
+            Duration duration = new Duration(dur);
+            task.setDuration(duration);
+        }
+        task.setUser(user);
+
+        return task;
+    }
 }

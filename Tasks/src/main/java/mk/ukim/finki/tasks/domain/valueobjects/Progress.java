@@ -13,4 +13,8 @@ public class Progress {
         this.progress = 0.0;
     }
 
+    public Progress(Double progress){
+        this.progress=progress;
+    }
+
 }
