@@ -2,6 +2,8 @@ package mk.ukim.finki.tasks.service;
 
 import mk.ukim.finki.tasks.domain.models.Task;
 import mk.ukim.finki.tasks.service.form.TaskForm;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 
 import java.util.List;

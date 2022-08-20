@@ -11,4 +11,10 @@ public interface UserService {
     List<User> findAll();
 
     Optional<User> findUserById(String id);
+
+    User taskItemCreated(String userId, String taskId);
+
+    User taskItemDeleted(String userId, String taskId);
+
+    User taskItemUpdated(String userId, String taskId);
 }

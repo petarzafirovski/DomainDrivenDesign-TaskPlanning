@@ -2,6 +2,7 @@ package mk.ukim.finki.tasks.service.form;
 
 import lombok.Data;
 import mk.ukim.finki.tasks.domain.models.Task;
+import mk.ukim.finki.tasks.domain.models.TaskUserId;
 import mk.ukim.finki.tasks.domain.valueobjects.UserId;
 
 import javax.validation.Valid;
@@ -27,7 +28,7 @@ public class TaskForm {
     @NotNull
     List<Task> dependsOn;
 
-    UserId userId;
+    TaskUserId userId;
 
     @NotNull
     LocalDateTime startTime;

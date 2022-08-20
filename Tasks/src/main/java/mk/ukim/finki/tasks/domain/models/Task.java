@@ -4,6 +4,7 @@ import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NonNull;
 import mk.ukim.finki.sharedkernel.domain.base.AbstractEntity;
+import mk.ukim.finki.sharedkernel.domain.base.DomainObjectId;
 import mk.ukim.finki.tasks.domain.valueobjects.Duration;
 
 import mk.ukim.finki.tasks.domain.valueobjects.Progress;
@@ -54,7 +55,9 @@ public class Task extends AbstractEntity<TaskId> {
 //        return this.user.getName() + " " + this.user.getSurname();
 //    }
 
+
     public Task() {
+        super(DomainObjectId.randomId(TaskId.class));
     }
 
     public Task(String title, String description, Status status, List<Task> dependsOn, TaskUser user, Time startTime, Time endTime, Progress progress) {
@@ -144,6 +147,7 @@ public class Task extends AbstractEntity<TaskId> {
         task.setDependsOn(dependsOn);
         task.setStartTime(startTime );
         task.setEndTime(endTime);
+        task.setProgress(progress);
         if(startTime!=null && endTime == null){
             Duration duration = new Duration(1L);
             task.setDuration(duration);

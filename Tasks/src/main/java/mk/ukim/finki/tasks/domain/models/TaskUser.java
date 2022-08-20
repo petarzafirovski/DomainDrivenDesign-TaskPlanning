@@ -10,6 +10,7 @@ import mk.ukim.finki.tasks.domain.valueobjects.UserId;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -17,19 +18,26 @@ import java.util.Set;
 @Getter
 public class TaskUser extends AbstractEntity<TaskUserId> {
 
-    @AttributeOverride(name = "id", column = @Column(name = "task_user_id", nullable = false))
-    private UserId userId;
+//    @AttributeOverride(name = "id", column = @Column(name = "task_user_id", nullable = false))
+//    private UserId userId;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user",orphanRemoval = true,fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
 
-    public TaskUser(@NonNull UserId userId) {
+    public TaskUser() {
         super(DomainObjectId.randomId(TaskUserId.class));
-        this.userId = userId;
     }
 
-    protected TaskUser() {
-        super(DomainObjectId.randomId(TaskUserId.class));
+    public Task addItem(@NonNull Task task) {
+        Objects.requireNonNull(task,"task must not be null");
+        tasks.add(task);
+        return task;
     }
+
+    public void removeItem(@NonNull TaskId taskId) {
+        Objects.requireNonNull(taskId,"Task Item must not be null");
+        tasks.removeIf(v->v.getId().equals(taskId));
+    }
+
 }
