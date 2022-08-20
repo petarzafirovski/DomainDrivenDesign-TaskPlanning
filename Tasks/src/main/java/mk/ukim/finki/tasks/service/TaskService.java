@@ -3,6 +3,7 @@ package mk.ukim.finki.tasks.service;
 import mk.ukim.finki.tasks.domain.models.Task;
 import mk.ukim.finki.tasks.domain.models.TaskId;
 import mk.ukim.finki.tasks.domain.models.TaskUserId;
+import mk.ukim.finki.tasks.domain.valueobjects.UserId;
 import mk.ukim.finki.tasks.service.form.TaskForm;
 
 
@@ -15,7 +16,7 @@ public interface TaskService {
 
     List<Task> findAll();
 
-    List<Task> findAllByUser(TaskUserId userId);
+    List<Task> findAllByUser(UserId userId);
 
     Optional<Task> create(TaskForm taskForm);
 
@@ -27,13 +28,12 @@ public interface TaskService {
 
     List<Task> withoutAssignees();
 
-    Long findEstTimeInHours(Task task);
 
     List<Task> tasksWithoutDependencies();
 
     List<Task> completedDependentTasks();
 
-    void addDependency(TaskId sourceId, TaskId targetId);
+    void addDependency(String sourceId, String targetId);
 
-    void deleteDependency(TaskId sourceId, TaskId targetId);
+    void deleteDependency(String sourceId, String targetId);
 }

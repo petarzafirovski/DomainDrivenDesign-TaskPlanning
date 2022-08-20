@@ -13,4 +13,8 @@ public class Time {
     protected Time(){
         this.time = LocalDateTime.now();
     }
+
+    public Time(LocalDateTime date){
+        this.time=date;
+    }
 }
