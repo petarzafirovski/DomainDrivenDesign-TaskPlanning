@@ -1,9 +1,6 @@
 package mk.ukim.finki.tasks.service;
 
 import mk.ukim.finki.tasks.domain.models.Task;
-import mk.ukim.finki.tasks.domain.models.TaskId;
-import mk.ukim.finki.tasks.domain.models.TaskUserId;
-import mk.ukim.finki.tasks.domain.valueobjects.UserId;
 import mk.ukim.finki.tasks.service.form.TaskForm;
 
 
@@ -12,19 +9,19 @@ import java.util.Optional;
 
 public interface TaskService {
 
-    Optional<Task> findById(TaskId id);
+    Optional<Task> findById(String id);
 
     List<Task> findAll();
 
-    List<Task> findAllByUser(UserId userId);
+    List<Task> findAllByUser(String userId);
 
     Optional<Task> create(TaskForm taskForm);
 
-    void delete(TaskId id);
+    void delete(String id);
 
-    Optional<Task> update(TaskId id, TaskForm taskForm);
+    Optional<Task> update(String id, TaskForm taskForm);
 
-    List<Task> getOtherTasks(TaskId id);
+    List<Task> getOtherTasks(String id);
 
     List<Task> withoutAssignees();
 

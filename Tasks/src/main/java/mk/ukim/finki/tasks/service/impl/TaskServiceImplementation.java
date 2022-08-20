@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import mk.ukim.finki.tasks.domain.models.Task;
 import mk.ukim.finki.tasks.domain.models.TaskId;
 import mk.ukim.finki.tasks.domain.models.TaskUser;
-import mk.ukim.finki.tasks.domain.models.TaskUserId;
 import mk.ukim.finki.tasks.domain.repository.TaskRepository;
 import mk.ukim.finki.tasks.domain.repository.TaskUserRepository;
 import mk.ukim.finki.tasks.domain.valueobjects.Progress;
@@ -14,13 +13,10 @@ import mk.ukim.finki.tasks.domain.valueobjects.Time;
 import mk.ukim.finki.tasks.domain.valueobjects.UserId;
 import mk.ukim.finki.tasks.service.TaskService;
 import mk.ukim.finki.tasks.service.form.TaskForm;
-import mk.ukim.finki.users.domain.model.User;
-import mk.ukim.finki.users.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,13 +24,12 @@ import java.util.stream.Collectors;
 public class TaskServiceImplementation implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
     private final TaskUserRepository taskUserRepository;
 
 
     @Override
-    public Optional<Task> findById(TaskId id) {
-        return this.taskRepository.findById(id);
+    public Optional<Task> findById(String id) {
+        return this.taskRepository.findById(TaskId.of(id));
     }
 
     @Override
@@ -43,28 +38,41 @@ public class TaskServiceImplementation implements TaskService {
     }
 
     @Override
-    public List<Task> findAllByUser(UserId userId) {
-        TaskUser taskUser = this.taskUserRepository.findById(userId).get();
+    public List<Task> findAllByUser(String userId) {
+        UserId uId = UserId.of(userId);
+        TaskUser taskUser = this.taskUserRepository.findById(uId).get();
         return this.taskRepository.findAllByUser(taskUser);
     }
 
     @Override
     public Optional<Task> create(TaskForm taskForm) {
         TaskUser taskUser = this.taskUserRepository.findById(taskForm.getUserId()).get();
-        Task task = Task.build(taskForm.getTitle(),taskForm.getDescription(),taskForm.getDependsOn(),taskUser,new Time(taskForm.getStartTime()),new Time(taskForm.getEndTime()),new Progress(taskForm.getProgress()));
+        Task task = Task.build(taskForm.getTitle(),
+                taskForm.getDescription(),
+                taskForm.getDependsOn(),
+                taskUser,
+                new Time(taskForm.getStartTime()),
+                new Time(taskForm.getEndTime()),
+                new Progress(taskForm.getProgress()));
+
         this.taskRepository.saveAndFlush(task);
         return Optional.of(task);
     }
 
     @Override
-    public void delete(TaskId id) {
-        this.taskRepository.deleteById(id);
+    public void delete(String id) {
+
+        Task taskToDelete = taskRepository.findById(TaskId.of(id)).get();
+        taskRepository.findById(TaskId.of(id)).get().getDependsOn().clear();
+        getOtherTasks(id).forEach(task -> task.getDependsOn().remove(taskToDelete));
+
+        this.taskRepository.deleteById(TaskId.of(id));
     }
 
     @Override
-    public Optional<Task> update(TaskId id, TaskForm taskForm) {
+    public Optional<Task> update(String id, TaskForm taskForm) {
 
-        Task task = this.taskRepository.findById(id).get();
+        Task task = this.taskRepository.findById(TaskId.of(id)).get();
 
         task.setTitle(taskForm.getTitle() == null ? task.getTitle() : taskForm.getTitle());
         task.setStatus(taskForm.getProgress()==null ? task.getProgress() : new Progress(taskForm.getProgress()));
@@ -78,10 +86,10 @@ public class TaskServiceImplementation implements TaskService {
     }
 
     @Override
-    public List<Task> getOtherTasks(TaskId id) {
+    public List<Task> getOtherTasks(String id) {
         return this.taskRepository.findAll()
                 .stream()
-                .filter(task -> !task.getId().equals(id))
+                .filter(task -> !task.getId().equals(TaskId.of(id)))
                 .collect(Collectors.toList());
     }
 
@@ -109,12 +117,10 @@ public class TaskServiceImplementation implements TaskService {
 
     @Override
     public void addDependency(String sourceId, String targetId) {
-        TaskId sourceTaskId= new TaskId(sourceId);
-        Task sourceTask = this.taskRepository.findById(sourceTaskId)
+        Task sourceTask = this.taskRepository.findById(TaskId.of(sourceId))
                 .orElseThrow(IllegalArgumentException::new);
 
-        TaskId targetTaskId= new TaskId(targetId);
-        Task targetTask = this.taskRepository.findById(targetTaskId)
+        Task targetTask = this.taskRepository.findById(TaskId.of(targetId))
                 .orElseThrow(IllegalArgumentException::new);
 
         //target task e taa sto treba da zavisi od source task
@@ -126,12 +132,10 @@ public class TaskServiceImplementation implements TaskService {
 
     @Override
     public void deleteDependency(String sourceId, String targetId) {
-        TaskId sourceTaskId= new TaskId(sourceId);
-        Task sourceTask = this.taskRepository.findById(sourceTaskId)
+        Task sourceTask = this.taskRepository.findById(TaskId.of(sourceId))
                 .orElseThrow(IllegalArgumentException::new);
 
-        TaskId targetTaskId= new TaskId(targetId);
-        Task targetTask = this.taskRepository.findById(targetTaskId)
+        Task targetTask = this.taskRepository.findById(TaskId.of(targetId))
                 .orElseThrow(IllegalArgumentException::new);
 
         if(targetTask.getDependsOn().contains(sourceTask)){
