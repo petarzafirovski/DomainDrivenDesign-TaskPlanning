@@ -5,12 +5,12 @@ import mk.ukim.finki.sharedkernel.domain.config.TopicHolder;
 import mk.ukim.finki.sharedkernel.domain.events.DomainEvent;
 
 @Getter
-public class TaskCreated  extends DomainEvent {
+public class TaskCreated extends DomainEvent {
 
     private String taskId;
     private String userId;
 
-    public TaskCreated(String topic) {
+    public TaskCreated() {
         super(TopicHolder.TOPIC_TASK_CREATED);
     }
 

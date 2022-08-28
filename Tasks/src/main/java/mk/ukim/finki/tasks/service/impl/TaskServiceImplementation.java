@@ -36,6 +36,10 @@ public class TaskServiceImplementation implements TaskService {
     private final TaskUserRepository taskUserRepository;
     private final DomainEventPublisher domainEventPublisher;
 
+    @Override
+    public List<Task> findAll() {
+        return this.taskRepository.findAll();
+    }
 
     @Override
     public Optional<Task> findById(String id) {
@@ -43,8 +47,20 @@ public class TaskServiceImplementation implements TaskService {
     }
 
     @Override
-    public List<Task> findAll() {
-        return this.taskRepository.findAll();
+    public List<TaskForm> findAllForms() {
+        return this.taskRepository
+                .findAll()
+                .stream()
+                .map(task -> new TaskForm(
+                        task.getId().getId()
+                        ,task.getTitle(),
+                        task.getDescription(),
+                        task.getDependsOn(),
+                        task.getUser().getId().getId(),
+                        task.getStartTime().getTime(),
+                        task.getEndTime().getTime(),
+                        task.findEstTimeInDays(task.getStartTime(), task.getEndTime()))
+                ).collect(Collectors.toList());
     }
 
     @Override
@@ -57,11 +73,11 @@ public class TaskServiceImplementation implements TaskService {
     @Override
     @Transactional
     public Optional<Task> create(TaskForm taskForm) {
-        TaskUser taskUser = this.taskUserRepository.findById(taskForm.getUserId()).get();
+        //TaskUser taskUser = this.taskUserRepository.findById(TaskUserId.of(taskForm.getUserId())).get();
         Task task = Task.build(taskForm.getTitle(),
                 taskForm.getDescription(),
                 taskForm.getDependsOn(),
-                taskUser,
+                null,
                 new Time(taskForm.getStartTime()),
                 new Time(taskForm.getEndTime()),
                 new Progress(taskForm.getProgress()));
@@ -69,7 +85,7 @@ public class TaskServiceImplementation implements TaskService {
         this.taskRepository.saveAndFlush(task);
 
         //kafka event for create
-        domainEventPublisher.publish(new TaskCreated(task.getId().toString(),taskUser.getId().toString()));
+        domainEventPublisher.publish(new TaskCreated(task.getId().getId(),null));
         return Optional.of(task);
     }
 
@@ -100,11 +116,11 @@ public class TaskServiceImplementation implements TaskService {
         task.setEndTime(taskForm.getEndTime() == null ? task.getEndTime() : new Time(taskForm.getEndTime()));
 
         if(taskForm.getUserId() != null){
-            TaskUser user = this.taskUserRepository.findById(taskForm.getUserId()).get();
+            TaskUser user = this.taskUserRepository.findById(TaskUserId.of(taskForm.getUserId())).get();
             task.setUser(user);
 
             //kafka event for update
-//            domainEventPublisher.publish(new TaskUpdated(task.getId().toString(),taskForm.getUserId().toString()));
+            domainEventPublisher.publish(new TaskUpdated(task.getId().toString(),taskForm.getUserId().toString()));
         }else{
             TaskUser user = this.taskUserRepository.findById(task.getUser().getId()).get();
             task.setUser(user);

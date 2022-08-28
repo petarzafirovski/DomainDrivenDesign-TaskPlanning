@@ -15,34 +15,35 @@ import org.springframework.stereotype.Service;
 public class UserEventListener {
     private final UserService userService;
 
-    @KafkaListener(topics= TopicHolder.TOPIC_TASK_CREATED, groupId = "users")
+    @KafkaListener(topics = TopicHolder.TOPIC_TASK_CREATED, groupId = "users")
     public void consumeTaskItemCreated(String jsonMessage) {
+        var mess = jsonMessage;
         try {
-            TaskCreated event = DomainEvent.fromJson(jsonMessage,TaskCreated.class);
-            userService.taskItemCreated(event.getUserId(),event.getTaskId());
-        } catch (Exception e){
+            TaskCreated event = DomainEvent.fromJson(jsonMessage, TaskCreated.class);
+            userService.taskItemCreated(event.getUserId(), event.getTaskId());
+        } catch (Exception e) {
             throw new IllegalStateException();
         }
 
     }
 
-    @KafkaListener(topics= TopicHolder.TOPIC_TASK_UPDATED, groupId = "users")
+    @KafkaListener(topics = TopicHolder.TOPIC_TASK_UPDATED, groupId = "users")
     public void consumeTaskItemUpdated(String jsonMessage) {
         try {
-            TaskUpdated event = DomainEvent.fromJson(jsonMessage,TaskUpdated.class);
-            userService.taskItemUpdated(event.getUserId(),event.getTaskId());
-        } catch (Exception e){
+            TaskUpdated event = DomainEvent.fromJson(jsonMessage, TaskUpdated.class);
+            userService.taskItemUpdated(event.getUserId(), event.getTaskId());
+        } catch (Exception e) {
             throw new IllegalStateException();
         }
 
     }
 
-    @KafkaListener(topics= TopicHolder.TOPIC_TASK_DELETED, groupId = "users")
+    @KafkaListener(topics = TopicHolder.TOPIC_TASK_DELETED, groupId = "users")
     public void consumeTaskItemDeleted(String jsonMessage) {
         try {
             TaskDeleted event = DomainEvent.fromJson(jsonMessage, TaskDeleted.class);
-            userService.taskItemDeleted(event.getUserId(),event.getTaskId());
-        } catch (Exception e){
+            userService.taskItemDeleted(event.getUserId(), event.getTaskId());
+        } catch (Exception e) {
             throw new IllegalStateException();
         }
 

@@ -130,7 +130,7 @@ public class Task extends AbstractEntity<TaskId> {
     }
 
     //est time in hours
-    public Long findEstTimeInHours(Time startTime, Time endTime) {
+    public Long findEstTimeInDays(Time startTime, Time endTime) {
         if (endTime == null){
             throw new IllegalArgumentException("duration cannot be calculated");
         }
@@ -138,6 +138,8 @@ public class Task extends AbstractEntity<TaskId> {
             return Duration.between(this.startTime.getTime(), this.endTime.getTime()).toDays();
         return Duration.between(LocalDateTime.now(), this.endTime.getTime()).toDays();
     }
+
+
 
     public static Task build(String title, String description, List<Task> dependsOn, TaskUser user, Time startTime,Time endTime, @Nullable Progress progress) {
         Task task = new Task();
@@ -154,7 +156,7 @@ public class Task extends AbstractEntity<TaskId> {
         }
 
         if(startTime!=null && endTime!=null){
-            Long dur = task.findEstTimeInHours(startTime,endTime);
+            Long dur = task.findEstTimeInDays(startTime,endTime);
             Duration duration = new Duration(dur);
             task.setDuration(duration);
         }

@@ -34,7 +34,7 @@ public class TaskServiceImplTest {
         taskForm.setTitle("Task 1");
         taskForm.setDescription("Task 1 desc");
         taskForm.setDependsOn(new ArrayList<>());
-        taskForm.setUserId(taskUser.getId());
+        taskForm.setUserId(taskUser.getId().getId());
         taskForm.setStartTime(LocalDateTime.now());
         taskForm.setEndTime(LocalDateTime.of(2022,9,9,22,0));
 
@@ -49,7 +49,7 @@ public class TaskServiceImplTest {
         taskForm.setTitle("Task 1");
         taskForm.setDescription("Task 1 updated description");
         taskForm.setDependsOn(new ArrayList<>());
-        taskForm.setUserId(this.taskUserRepository.findAll().get(0).getId());
+        taskForm.setUserId(this.taskUserRepository.findAll().get(0).getId().getId());
         taskForm.setStartTime(LocalDateTime.now());
         taskForm.setEndTime(LocalDateTime.of(2022,9,9,22,0));
 

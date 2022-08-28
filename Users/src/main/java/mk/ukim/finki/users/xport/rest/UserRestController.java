@@ -4,10 +4,12 @@ package mk.ukim.finki.users.xport.rest;
 import mk.ukim.finki.users.domain.model.User;
 import mk.ukim.finki.users.service.UserService;
 
+import mk.ukim.finki.users.service.form.UserForm;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,8 +22,11 @@ public class UserRestController {
     }
 
     @GetMapping
-    public List<User> listUsers(){
-        return this.userService.findAll();
+    public List<UserForm> listUsers(){
+        return this.userService.findAll()
+                .stream()
+                .map(user -> new UserForm(user.getId().getId(), user.getUsername()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

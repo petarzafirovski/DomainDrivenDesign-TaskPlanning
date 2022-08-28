@@ -13,6 +13,8 @@ public interface TaskService {
 
     Optional<Task> findById(String id);
 
+    List<TaskForm> findAllForms();
+
     List<Task> findAll();
 
     List<Task> findAllByUser(String userId);

@@ -2,30 +2,32 @@ package mk.ukim.finki.sharedkernel.domain.events;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.Getter;
 
+
 import java.time.Instant;
+
 
 @Getter
 public class DomainEvent {
 
     private String topic;
-    private Instant occurredOn;
+    //private Instant occurredOn;
 
     public DomainEvent(String topic) {
-        this.occurredOn = Instant.now();
+        //this.occurredOn = Instant.now();
         this.topic = topic;
     }
 
     public String toJson() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String output = null;
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = null;
         try {
-            output = objectMapper.writeValueAsString(this);
+          json = ow.writeValueAsString(this);
         } catch (JsonProcessingException e) {
-
         }
-        return output;
+        return json;
     }
 
     public String topic() {

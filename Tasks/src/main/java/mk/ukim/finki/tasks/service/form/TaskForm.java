@@ -3,6 +3,7 @@ package mk.ukim.finki.tasks.service.form;
 import lombok.Data;
 import mk.ukim.finki.tasks.domain.models.Task;
 import mk.ukim.finki.tasks.domain.models.TaskUserId;
+import mk.ukim.finki.tasks.domain.valueobjects.Status;
 import mk.ukim.finki.tasks.domain.valueobjects.UserId;
 
 import javax.validation.Valid;
@@ -16,19 +17,25 @@ import java.util.List;
 public class TaskForm {
 
     @NotNull
+    String id;
+
+    @NotNull
     String title;
 
     @NotNull
     String description;
 
-//    @NotNull
-//    String status;
+    @NotNull
+    String status = Status.todo.toString();
+
+    @NotNull
+    Long duration = 1L;
 
     @Valid
     @NotNull
     List<Task> dependsOn;
 
-    TaskUserId userId;
+    String userId;
 
     @NotNull
     LocalDateTime startTime;
@@ -38,4 +45,18 @@ public class TaskForm {
     @Min(0L)
     @Max(1L)
     Double progress = 0.0;
+
+    public TaskForm() {
+    }
+
+    public TaskForm(String id, String title, String description, List<Task> dependsOn, String userId, LocalDateTime startTime, LocalDateTime endTime, Long duration) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.dependsOn = dependsOn;
+        this.userId = userId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.duration = duration;
+    }
 }

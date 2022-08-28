@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = {"/api/tasks", "/api"})
@@ -24,24 +26,38 @@ public class TaskRestController {
     }
 
     @GetMapping()
-    public List<Task> findAll(@RequestParam(required = false) String filter,
-                              @RequestParam(required = false) String userId) {
+    public List<TaskForm> findAll(@RequestParam(required = false) String filter,
+                                  @RequestParam(required = false) String userId) {
+        List<Task> tasks = new ArrayList<>();
         if (filter != null) {
             switch (filter) {
                 case "non-dependent":
-                    return this.taskService.tasksWithoutDependencies();
+                    tasks = this.taskService.tasksWithoutDependencies();
+                    break;
                 case "completed-dependent-tasks":
-                    return this.taskService.completedDependentTasks();
+                    tasks = this.taskService.completedDependentTasks();
+                    break;
                 case "non-assigned":
-                    return this.taskService.withoutAssignees();
+                    tasks = this.taskService.withoutAssignees();
+                    break;
             }
         }
         if (userId != null) {
-            return this.taskService.findAllByUser(userId);
+            tasks = this.taskService.findAllByUser(userId);
         }
-        return this.taskService.findAll();
+        tasks = this.taskService.findAll();
+        return tasks.stream()
+                .map(task -> new TaskForm(
+                        task.getId().getId(),
+                        task.getTitle(),
+                        task.getDescription(),
+                        task.getDependsOn(),
+                        task.getUser() == null ?  "0" : task.getUser().getId().getId() ,
+                        task.getStartTime().getTime(),
+                        task.getEndTime().getTime(),
+                        task.findEstTimeInDays(task.getStartTime(), task.getEndTime()))
+                ).collect(Collectors.toList());
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> findById(@PathVariable String id) {
@@ -75,8 +91,9 @@ public class TaskRestController {
 
 
     }
+
     @PutMapping("addDependency")
-    public void saveDependency(@RequestBody DependencyForm dependencyForm){
+    public void saveDependency(@RequestBody DependencyForm dependencyForm) {
         this.taskService.addDependency(dependencyForm.getSourceId(), dependencyForm.getTargetId());
     }
 
@@ -86,6 +103,7 @@ public class TaskRestController {
         if (this.taskService.findById(id).isEmpty()) return ResponseEntity.ok().build();
         return ResponseEntity.badRequest().build();
     }
+
     @PutMapping("/deleteDependency")
     public void deleteById(@RequestBody DependencyForm dependencyForm) {
         this.taskService.deleteDependency(dependencyForm.getSourceId(), dependencyForm.getTargetId());
