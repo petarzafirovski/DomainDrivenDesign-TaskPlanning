@@ -43,17 +43,16 @@ public class TaskRestController {
             }
         }
         if (userId != null && !userId.equals("")) {
-            if(filter!=null){
+            if (filter != null) {
                 tasks = tasks.stream()
-                        .filter(task -> task.getUser()!=null)
+                        .filter(task -> task.getUser() != null)
                         .filter(task -> task.getUser().getId().getId().equals(userId))
                         .collect(Collectors.toList());
-            }else{
+            } else {
                 tasks = this.taskService.findAllByUser(userId);
             }
 
-        }
-        else if(filter==null) {
+        } else if (filter == null) {
             tasks = this.taskService.findAll();
         }
         return tasks.stream()
@@ -62,7 +61,7 @@ public class TaskRestController {
                         task.getTitle(),
                         task.getDescription(),
                         task.getDependsOn(),
-                        task.getUser() == null ?  "" : task.getUser().getUsername() ,
+                        task.getUser() == null ? "" : task.getUser().getUsername(),
                         task.getStartTime().getTime(),
                         task.getEndTime().getTime(),
                         task.findEstTimeInDays(task.getStartTime(), task.getEndTime()),
@@ -105,8 +104,15 @@ public class TaskRestController {
     }
 
     @PutMapping("addDependency")
-    public void saveDependency(@RequestBody DependencyForm dependencyForm) {
-        this.taskService.addDependency(dependencyForm.getSourceId(), dependencyForm.getTargetId());
+    public ResponseEntity<?> saveDependency(@RequestBody DependencyForm dependencyForm) {
+        try {
+            this.taskService.addDependency(dependencyForm.getSourceId(), dependencyForm.getTargetId());
+            return ResponseEntity.ok().build();
+        }
+        catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
     @DeleteMapping("/{id}/delete")
@@ -117,7 +123,7 @@ public class TaskRestController {
     }
 
     @PutMapping("/deleteDependency")
-    public void deleteById(@RequestBody DependencyForm dependencyForm) {
+    public void removeDependency(@RequestBody DependencyForm dependencyForm) {
         this.taskService.deleteDependency(dependencyForm.getSourceId(), dependencyForm.getTargetId());
     }
 
