@@ -21,6 +21,8 @@ public class TaskUser extends AbstractEntity<TaskUserId> {
 //    @AttributeOverride(name = "id", column = @Column(name = "task_user_id", nullable = false))
 //    private UserId userId;
 
+    private String username;
+
     @OneToMany(mappedBy = "user",orphanRemoval = true,fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
@@ -28,6 +30,13 @@ public class TaskUser extends AbstractEntity<TaskUserId> {
     public TaskUser() {
         super(DomainObjectId.randomId(TaskUserId.class));
     }
+
+    public TaskUser(String username) {
+        super(DomainObjectId.randomId(TaskUserId.class));
+        this.username=username;
+
+    }
+
 
     public Task addItem(@NonNull Task task) {
         Objects.requireNonNull(task,"task must not be null");
