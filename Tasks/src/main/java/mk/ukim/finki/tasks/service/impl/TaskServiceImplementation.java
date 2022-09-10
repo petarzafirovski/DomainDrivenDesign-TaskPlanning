@@ -2,7 +2,6 @@ package mk.ukim.finki.tasks.service.impl;
 
 
 import lombok.AllArgsConstructor;
-import mk.ukim.finki.sharedkernel.infra.DomainEventPublisher;
 import mk.ukim.finki.tasks.domain.models.Task;
 import mk.ukim.finki.tasks.domain.models.TaskId;
 import mk.ukim.finki.tasks.domain.models.TaskUser;
@@ -50,7 +49,9 @@ public class TaskServiceImplementation implements TaskService {
                         task.getUser().getId().getId(),
                         task.getStartTime().getTime(),
                         task.getEndTime().getTime(),
-                        task.findEstTimeInDays(task.getStartTime(), task.getEndTime()))
+                        task.findEstTimeInDays(task.getStartTime(), task.getEndTime()),
+                        task.getProgress().getProgress(),
+                        task.getStatus().toString())
                 ).collect(Collectors.toList());
     }
 
@@ -93,7 +94,13 @@ public class TaskServiceImplementation implements TaskService {
         Task task = this.taskRepository.findById(TaskId.of(id)).get();
 
         task.setTitle(taskForm.getTitle() == null ? task.getTitle() : taskForm.getTitle());
-        task.setStatus(taskForm.getProgress()==null ? task.getProgress() : new Progress(taskForm.getProgress()));
+        if(task.getStatus().toString() != taskForm.getStatus()){
+            task.setStatus(taskForm.getStatus());
+        }
+        else{
+            task.setStatusFromProgress(taskForm.getProgress()==null ? task.getProgress() : new Progress(taskForm.getProgress()));
+        }
+        task.setProgress(taskForm.getProgress()==null ? task.getProgress() : new Progress(taskForm.getProgress()));
         task.setDescription(taskForm.getDescription() == null ? task.getDescription() : taskForm.getDescription());
         task.setDependsOn(taskForm.getDependsOn() == null ? task.getDependsOn() : taskForm.getDependsOn());
         task.setStartTime(taskForm.getStartTime() == null ? task.getStartTime() : new Time(taskForm.getStartTime()));
@@ -103,8 +110,8 @@ public class TaskServiceImplementation implements TaskService {
             TaskUser user = this.taskUserRepository.findById(TaskUserId.of(taskForm.getUserId())).get();
             task.setUser(user);
         }else{
-            TaskUser user = this.taskUserRepository.findById(task.getUser().getId()).get();
-            task.setUser(user);
+            //TaskUser user = this.taskUserRepository.findById(task.getUser().getId()).get();
+            task.setUser(null);
         }
 
         this.taskRepository.saveAndFlush(task);

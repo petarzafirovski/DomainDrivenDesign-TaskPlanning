@@ -42,20 +42,32 @@ public class TaskRestController {
                     break;
             }
         }
-        if (userId != null) {
-            tasks = this.taskService.findAllByUser(userId);
+        if (userId != null && !userId.equals("")) {
+            if(filter!=null){
+                tasks = tasks.stream()
+                        .filter(task -> task.getUser()!=null)
+                        .filter(task -> task.getUser().getId().getId().equals(userId))
+                        .collect(Collectors.toList());
+            }else{
+                tasks = this.taskService.findAllByUser(userId);
+            }
+
         }
-        tasks = this.taskService.findAll();
+        else if(filter==null) {
+            tasks = this.taskService.findAll();
+        }
         return tasks.stream()
                 .map(task -> new TaskForm(
                         task.getId().getId(),
                         task.getTitle(),
                         task.getDescription(),
                         task.getDependsOn(),
-                        task.getUser() == null ?  "0" : task.getUser().getId().getId() ,
+                        task.getUser() == null ?  "" : task.getUser().getUsername() ,
                         task.getStartTime().getTime(),
                         task.getEndTime().getTime(),
-                        task.findEstTimeInDays(task.getStartTime(), task.getEndTime()))
+                        task.findEstTimeInDays(task.getStartTime(), task.getEndTime()),
+                        task.getProgress().getProgress(),
+                        task.getStatus().toString())
                 ).collect(Collectors.toList());
     }
 

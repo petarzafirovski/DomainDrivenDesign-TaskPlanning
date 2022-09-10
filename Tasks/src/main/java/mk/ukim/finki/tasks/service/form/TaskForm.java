@@ -49,7 +49,7 @@ public class TaskForm {
     public TaskForm() {
     }
 
-    public TaskForm(String id, String title, String description, List<Task> dependsOn, String userId, LocalDateTime startTime, LocalDateTime endTime, Long duration) {
+    public TaskForm(String id, String title, String description, List<Task> dependsOn, String userId, LocalDateTime startTime, LocalDateTime endTime, Long duration,Double progress,String status) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -58,5 +58,7 @@ public class TaskForm {
         this.startTime = startTime;
         this.endTime = endTime;
         this.duration = duration;
+        this.progress=progress;
+        this.status=status;
     }
 }

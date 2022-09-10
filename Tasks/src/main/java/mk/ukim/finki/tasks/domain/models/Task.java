@@ -73,7 +73,7 @@ public class Task extends AbstractEntity<TaskId> {
 
     //TODO: Implement data validation, adding a task, progress calculation, status calculation
 
-    public void setStatus(Progress progress) {
+    public void setStatusFromProgress(Progress progress) {
         if (progress == null || progress.getProgress() == (0.0)) {
             this.status = Status.todo;
         }
@@ -86,6 +86,10 @@ public class Task extends AbstractEntity<TaskId> {
         else if (progress.getProgress() == 1) {
             this.status = Status.finished;
         }
+    }
+
+    public void setStatus(String status){
+        this.status=Status.valueOf(status);
     }
 
     //add task dependants
@@ -144,7 +148,7 @@ public class Task extends AbstractEntity<TaskId> {
     public static Task build(String title, String description, List<Task> dependsOn, TaskUser user, Time startTime,Time endTime, @Nullable Progress progress) {
         Task task = new Task();
         task.setTitle(title);
-        task.setStatus(progress);
+        task.setStatusFromProgress(progress);
         task.setDescription(description);
         task.setDependsOn(dependsOn);
         task.setStartTime(startTime );
