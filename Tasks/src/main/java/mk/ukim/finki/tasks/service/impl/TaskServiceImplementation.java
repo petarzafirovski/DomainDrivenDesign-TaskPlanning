@@ -2,9 +2,6 @@ package mk.ukim.finki.tasks.service.impl;
 
 
 import lombok.AllArgsConstructor;
-import mk.ukim.finki.sharedkernel.domain.events.tasks.TaskCreated;
-import mk.ukim.finki.sharedkernel.domain.events.tasks.TaskDeleted;
-import mk.ukim.finki.sharedkernel.domain.events.tasks.TaskUpdated;
 import mk.ukim.finki.sharedkernel.infra.DomainEventPublisher;
 import mk.ukim.finki.tasks.domain.models.Task;
 import mk.ukim.finki.tasks.domain.models.TaskId;
@@ -15,12 +12,8 @@ import mk.ukim.finki.tasks.domain.repository.TaskUserRepository;
 import mk.ukim.finki.tasks.domain.valueobjects.Progress;
 import mk.ukim.finki.tasks.domain.valueobjects.Status;
 import mk.ukim.finki.tasks.domain.valueobjects.Time;
-import mk.ukim.finki.tasks.domain.valueobjects.UserId;
 import mk.ukim.finki.tasks.service.TaskService;
 import mk.ukim.finki.tasks.service.form.TaskForm;
-import mk.ukim.finki.users.domain.model.User;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +27,6 @@ public class TaskServiceImplementation implements TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskUserRepository taskUserRepository;
-    private final DomainEventPublisher domainEventPublisher;
-
     @Override
     public List<Task> findAll() {
         return this.taskRepository.findAll();
@@ -73,7 +64,6 @@ public class TaskServiceImplementation implements TaskService {
     @Override
     @Transactional
     public Optional<Task> create(TaskForm taskForm) {
-        //TaskUser taskUser = this.taskUserRepository.findById(TaskUserId.of(taskForm.getUserId())).get();
         Task task = Task.build(taskForm.getTitle(),
                 taskForm.getDescription(),
                 taskForm.getDependsOn(),
@@ -83,9 +73,6 @@ public class TaskServiceImplementation implements TaskService {
                 new Progress(taskForm.getProgress()));
 
         this.taskRepository.saveAndFlush(task);
-
-        //kafka event for create
-        domainEventPublisher.publish(new TaskCreated(task.getId().getId(),null));
         return Optional.of(task);
     }
 
@@ -97,9 +84,6 @@ public class TaskServiceImplementation implements TaskService {
         getOtherTasks(id).forEach(task -> task.getDependsOn().remove(taskToDelete));
 
        this.taskRepository.deleteById(TaskId.of(id));
-
-       // domainEventPublisher.publish(new TaskDeleted(taskToDelete.getId().toString(),taskToDelete.getUser().getId().toString()));
-
     }
 
     @Override
@@ -118,9 +102,6 @@ public class TaskServiceImplementation implements TaskService {
         if(taskForm.getUserId() != null){
             TaskUser user = this.taskUserRepository.findById(TaskUserId.of(taskForm.getUserId())).get();
             task.setUser(user);
-
-            //kafka event for update
-            domainEventPublisher.publish(new TaskUpdated(task.getId().toString(),taskForm.getUserId().toString()));
         }else{
             TaskUser user = this.taskUserRepository.findById(task.getUser().getId()).get();
             task.setUser(user);

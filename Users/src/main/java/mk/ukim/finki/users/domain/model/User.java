@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NonNull;
 import mk.ukim.finki.sharedkernel.domain.base.AbstractEntity;
+import mk.ukim.finki.sharedkernel.domain.base.DomainObjectId;
 import mk.ukim.finki.users.domain.valueobjects.Task;
 
 import javax.persistence.*;
@@ -30,6 +31,7 @@ public class User extends AbstractEntity<UserId> {
     }
 
     public User(String name, String surname, String username, String password, Set<TaskItem> tasks) {
+        super(DomainObjectId.randomId(UserId.class));
         this.name = name;
         this.surname = surname;
         this.username = username;
