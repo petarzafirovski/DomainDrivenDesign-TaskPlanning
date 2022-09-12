@@ -77,14 +77,16 @@ public class Task extends AbstractEntity<TaskId> {
         if (progress == null || progress.getProgress() == (0.0)) {
             this.status = Status.todo;
         }
+        if (progress.getProgress() == 1) {
+            this.status = Status.finished;
+            return;
+        }
+        if (progress.getProgress() >= 0.8) {
+            this.status = Status.forReview;
+            return;
+        }
         else if (progress.getProgress() > 0.0) {
             this.status = Status.inProgress;
-        }
-        else if (progress.getProgress() >= 0.8) {
-            this.status = Status.forReview;
-        }
-        else if (progress.getProgress() == 1) {
-            this.status = Status.finished;
         }
     }
 
@@ -145,10 +147,14 @@ public class Task extends AbstractEntity<TaskId> {
 
 
 
-    public static Task build(String title, String description, List<Task> dependsOn, TaskUser user, Time startTime,Time endTime, @Nullable Progress progress) {
+    public static Task build(String title, String description, List<Task> dependsOn, TaskUser user, Time startTime,Time endTime, @Nullable Progress progress,String status) {
         Task task = new Task();
         task.setTitle(title);
-        task.setStatusFromProgress(progress);
+        if(status.equals("undefined") || status == null ){
+            task.setStatusFromProgress(progress);
+        }else{
+            task.setStatus(status);
+        }
         task.setDescription(description);
         task.setDependsOn(dependsOn);
         task.setStartTime(startTime );

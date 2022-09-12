@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,13 +66,16 @@ public class TaskServiceImplementation implements TaskService {
     @Override
     @Transactional
     public Optional<Task> create(TaskForm taskForm) {
+        TaskUserId uId = TaskUserId.of(taskForm.getUserId());
+        TaskUser taskUser = this.taskUserRepository.findById(uId).get();
         Task task = Task.build(taskForm.getTitle(),
                 taskForm.getDescription(),
                 taskForm.getDependsOn(),
-                null,
+                taskUser,
                 new Time(taskForm.getStartTime()),
                 new Time(taskForm.getEndTime()),
-                new Progress(taskForm.getProgress()));
+                new Progress(taskForm.getProgress()),
+                taskForm.getStatus());
 
         this.taskRepository.saveAndFlush(task);
         return Optional.of(task);
@@ -94,7 +98,7 @@ public class TaskServiceImplementation implements TaskService {
         Task task = this.taskRepository.findById(TaskId.of(id)).get();
 
         task.setTitle(taskForm.getTitle() == null ? task.getTitle() : taskForm.getTitle());
-        if(task.getStatus().toString() != taskForm.getStatus()){
+        if(!Objects.equals(task.getStatus().toString(), taskForm.getStatus())){
             task.setStatus(taskForm.getStatus());
         }
         else{
