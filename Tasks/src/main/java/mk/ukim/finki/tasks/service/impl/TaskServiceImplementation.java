@@ -163,7 +163,7 @@ public class TaskServiceImplementation implements TaskService {
                 .orElseThrow(IllegalArgumentException::new);
 
         //target task e taa sto treba da zavisi od source task
-        if(!targetTask.getDependsOn().contains(sourceTask)){
+        if(targetTask.getDependsOn().stream().noneMatch(task -> task.getId().getId().equals(sourceId))){
             targetTask.getDependsOn().add(sourceTask);
             taskRepository.save(targetTask);
         }
@@ -177,8 +177,9 @@ public class TaskServiceImplementation implements TaskService {
         Task targetTask = this.taskRepository.findById(TaskId.of(targetId))
                 .orElseThrow(IllegalArgumentException::new);
 
-        if(targetTask.getDependsOn().contains(sourceTask)){
-            targetTask.getDependsOn().remove(sourceTask);
+        if(targetTask.getDependsOn().stream().anyMatch(task -> task.getId().getId().equals(sourceId))){
+           List<Task> temp = targetTask.getDependsOn().stream().filter(task -> !task.getId().getId().equals(sourceId)).collect(Collectors.toList());
+           targetTask.setDependsOn(temp);
             taskRepository.save(targetTask);
         }
     }
